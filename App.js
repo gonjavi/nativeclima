@@ -31,8 +31,6 @@ const App = () => {
       try {
         const respuesta = await fetch(url);
         const resultado = await respuesta.json();
-        console.log(resultado)
-        console.warn(resultado)
         guardarResultado(resultado);
         guardarConsultar(false);
       } catch (error) {
