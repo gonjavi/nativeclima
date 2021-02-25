@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState, useEffect, Alert } from 'react';
 import {
   StyleSheet,
   ScrollView,
@@ -8,9 +8,49 @@ import {
   TouchableWithoutFeedback,
 } from 'react-native';
 import Formulario from './components/Formulario';
+import Clima from './components/Clima';
 
 
 const App = () => {
+  const [busqueda, guardarBusqueda] = useState({
+    ciudad: '',
+    pais: ''
+  });
+  const [consultar, guardarConsultar] = useState(false);
+  const [resultado, guardarResultado] = useState({}); 
+
+  const { ciudad, pais } = busqueda;
+
+  useEffect(() => {
+   const consultarCLima = async () => {
+    if (consultar) {
+      const appId = '43d2ba90063f19a1c0dd16f2aed1f549';
+      const url = `http://api.openweathermap.org/data/2.5/weather?q=${ciudad},${pais}&appid=${appId}`;
+      console.log(url)
+
+      try {
+        const respuesta = await fetch(url);
+        const resultado = await respuesta.json();
+        console.log(resultado)
+        console.warn(resultado)
+        guardarResultado(resultado);
+        guardarConsultar(false);
+      } catch (error) {
+        mostrarAlerta();
+      }
+    }
+   }
+   consultarCLima();
+  },[consultar])
+
+  const mostrarAlerta = () => {
+    Alert.alert(
+      'Error',
+      'No hay resultados, intenta con otra ciudad o país',
+      [{ text: 'OK'}]
+    )
+  }
+
   const ocultarteclado = () => {
     Keyboard.dismiss();
   }
@@ -20,7 +60,14 @@ const App = () => {
     <TouchableWithoutFeedback onPress={() => ocultarteclado()}>
       <View style={styles.app}>
         <View style={styles.contenido}>
-          <Formulario />
+          <Clima
+            resultado={resultado}
+          />
+          <Formulario
+            busqueda={busqueda}
+            guardarBusqueda={guardarBusqueda}
+            guardarConsultar={guardarConsultar}
+          />
         </View>
       </View>
     </TouchableWithoutFeedback>
